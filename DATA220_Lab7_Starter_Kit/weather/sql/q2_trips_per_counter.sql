@@ -3,4 +3,11 @@
 --        daily trips rounded to 1 decimal -- the busiest counter (most trips) first
 -- Table: trail_counts
 -- Uses:  COUNT(*), SUM(), AVG(), ROUND(), GROUP BY, ORDER BY ... DESC   (Week 9, Wednesday)
-SELECT 'TODO: write your query here' AS todo
+SELECT counter_id,
+       COUNT(*)             AS days,
+       SUM(trips)           AS total_trips,
+       ROUND(AVG(trips), 1) AS avg_daily_trips
+FROM trail_counts
+GROUP BY counter_id
+ORDER BY total_trips DESC;
+

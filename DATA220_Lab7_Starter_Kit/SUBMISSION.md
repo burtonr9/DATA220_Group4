@@ -3,11 +3,11 @@
 Replace every TODO, then commit and push. Write each name exactly the same way
 here and in `project/config.R` (source and table owners).
 
-**Team number:** TODO
+**Team number:** 4
 
 **Project title:** TODO
 
-**GitHub repository:** TODO (paste the https://github.com/... link)
+**GitHub repository:** https://github.com/burtonr9/DATA220_Lab7_Group4
 
 ## Team members
 
@@ -17,7 +17,7 @@ here and in `project/config.R` (source and table owners).
 
 | Name | Student ID | Present at the lab | What I did |
 |------|------------|--------------------|------------|
-| TODO | TODO       | TODO               | TODO       |
+| Ryan Burton | 3143479 | YES            | W1-W4      |
 | TODO | TODO       | TODO               | TODO       |
 | TODO | TODO       | TODO               | TODO       |
 

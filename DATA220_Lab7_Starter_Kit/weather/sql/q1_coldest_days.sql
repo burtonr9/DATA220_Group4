@@ -3,4 +3,9 @@
 -- Table: weather_daily
 -- Uses:  SELECT ... FROM ... WHERE ... ORDER BY ... LIMIT      (Week 9, Wednesday)
 -- Try it in the console on data/finished/weather.sqlite first, then put it here.
-SELECT 'TODO: write your query here' AS todo
+SELECT date, min_temp_c
+FROM weather_daily
+WHERE station_code = 'EDM-A'
+ORDER BY min_temp_c ASC, date ASC
+LIMIT 5;
+

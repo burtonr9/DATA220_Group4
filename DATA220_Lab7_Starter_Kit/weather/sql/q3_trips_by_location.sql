@@ -8,7 +8,7 @@
 --   GROUP BY c.location ...         one result row per location
 --
 -- Run this file, read the result, then answer on the ANSWER line below.
--- ANSWER: the busiest location is TODO
+-- ANSWER: the busiest location is Hawrelak Park Trail
 SELECT c.location, c.trail_type, SUM(t.trips) AS total_trips
 FROM trail_counts AS t
 INNER JOIN counters AS c ON t.counter_id = c.counter_id
