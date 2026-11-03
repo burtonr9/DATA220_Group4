@@ -186,3 +186,29 @@ check_columns <- function(df, expected, name = "table") {
   }
   invisible(TRUE)
 }
+
+read_one_record <- function(f) {
+  x <- jsonlite::fromJSON(f)
+  if (!is.null(x$response)) x <- x$response        # player-count files: the record is inside "response"
+  for (n in names(x)) {
+    v <- x[[n]]
+    if (length(v) == 0) {
+      x[[n]] <- NA                                   # null or [] -> NA (missing, not 0)
+    } else if (!is.null(names(v))) {
+      x[[n]] <- paste(names(v), collapse = ", ")     # tags {"MOBA": 20000, ...} -> "MOBA, ..."
+    } else {
+      x[[n]] <- paste(v, collapse = ", ")
+    }
+  }
+  df <- as.data.frame(x)
+  df$source_file <- basename(f)                      # which file each row came from
+  df
+}
+
+read_record_folder <- function(folder) {
+  files <- list.files(folder, pattern = "\\.json$", full.names = TRUE)
+  if (length(files) == 0) stop("No .json files in ", folder)
+  parts <- list()
+  for (f in files) parts[[length(parts) + 1]] <- read_one_record(f)
+  bind_rows(parts)
+}

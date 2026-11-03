@@ -1,7 +1,7 @@
 # config.R -- YOUR project's data: the sources, what you found in them, and the tables
 # you plan. Lab 7 starts it; Lab 8 builds on it. Write names exactly as in SUBMISSION.md.
 
-PROJECT <- "TODO: your project title"
+PROJECT <- "What keeps steam's most-played games busy?"
 
 # =============================================================================
 # P1 -- Sources: one entry per data source
@@ -19,9 +19,27 @@ PROJECT <- "TODO: your project title"
 #                link = "emailed by Campus Food Services",
 #                file = "data/raw/sales", owner = "Alex Example"),
 # =============================================================================
+
 SOURCES <- list(
-  source_1 = list(what = "TODO", format = "TODO", get = "TODO",
-                  link = "TODO", file = "TODO", owner = "TODO")
+  
+  steamspy_games = list(
+    what = "Game metadata for 60 Steam games ; currently includes 10 as a sample, including app ID, name, developer, publisher, reviews, price and tags",
+    format = "json",
+    get = "api",
+    link = "https://steamspy.com/api.php?request=appdetails&appid=<appid>",
+    file = "data/raw/steamspy_games",
+    owner = "Riwaz Silwal"
+  ),
+  
+  player_counts = list(
+    what = "Current player-count responses for the same 60 Steam games; currently includes 10 as a sample.",
+    format = "json",
+    get = "api",
+    link = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=<appid>",
+    file = "data/raw/player_counts",
+    owner = "Riwaz Silwal"
+  )
+  
 )
 
 # =============================================================================
@@ -31,7 +49,26 @@ SOURCES <- list(
 #   FOUND (example): sales Date is in 2 formats (2026-10-01, 10/15/2026) -> parse_dates_mixed()
 #
 # =============================================================================
+#FOUND: steamspy_games:
+# - Each JSON file contains Steam game metadata, including appid,
+#   name, developer, publisher, pricing, ownership estimates,
+#   player activity, languages, genre and tags.
+# - appid is a numeric game identifier.
+# - Some metadata fields may be empty or missing, depending on the game.
+# - score_rank is empty in the inspected sample.
+# - Pricing and descriptive fields may be missing for some games.
+# - owners is stored as text containing estimated ownership ranges.
+# - tags may contain multiple values and need consistent handling.
+# - Each file represents one game, so appid can identify the game.
 
+#FOUND:
+# - Each JSON file contains a nested response object.
+# - The response contains player_count and result.
+# - player_count is numeric.
+# - The API response does not include appid.
+# - Each player-count file must be associated with its corresponding
+#   game using an identifier or file mapping.
+# - Player counts represent a snapshot at the time the API was queried.
 # =============================================================================
 # P4 -- The tables you plan (preliminary: they may change once you know your data)
 # -----------------------------------------------------------------------------
