@@ -12,6 +12,7 @@ log_msg("00_inspect: start")
 
 for (name in names(SOURCES)) {
   s <- SOURCES[[name]]
+  if (name %in% c("steamspy_games", "player_counts")) next
   if (!file.exists(s$file)) {
     log_msg(name, ": no file at ", s$file, " -- put a sample in data/raw/ (P2)")
     next
@@ -26,5 +27,28 @@ for (name in names(SOURCES)) {
     if (length(files) > 1) part <- paste0("_", tools::file_path_sans_ext(basename(f)))
     save_csv(p, paste0("output/profile_", name, part, ".csv"))
   }
+}
+# Inspect the two JSON record folders as whole tables
+# Inspect the two JSON record folders
+for (name in c("steamspy_games", "player_counts")) {
+  folder <- SOURCES[[name]]$file
+  
+  d <- read_record_folder(folder)
+  
+  p <- bind_rows(lapply(names(d), function(col) {
+    v <- d[[col]]
+    filled <- v[!is.na(v) & str_squish(v) != ""]
+    
+    data.frame(
+      column = col,
+      looks_like = guess_type(filled),
+      missing = length(v) - length(filled),
+      distinct = length(unique(filled)),
+      examples = show_examples(filled)
+    )
+  }))
+  
+  print(p, right = FALSE)
+  save_csv(p, paste0("output/profile_", name, ".csv"))
 }
 log_msg("00_inspect: done -- now write what you found as # FOUND: lines in config.R")

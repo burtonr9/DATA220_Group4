@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+DATA220_Lab7_Starter_Kit/project/logs/
+DATA220_Lab7_Starter_Kit/project/output/
+DATA220_Lab7_Starter_Kit/project/data/interim/
+DATA220_Lab7_Starter_Kit/project/data/processed/
+DATA220_Lab7_Starter_Kit/project/data/db/
