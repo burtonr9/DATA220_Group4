@@ -18,7 +18,7 @@ here and in `project/config.R` (source and table owners).
 | Name | Student ID | Present at the lab | What I did |
 |------|------------|--------------------|------------|
 | Ryan Burton | 3143479 | YES            | W1-W4      |
-| TODO | TODO       | TODO               | TODO       |
+| Riwaz Silwal | 3172265  | YES               | P1-P3       |
 | TODO | TODO       | TODO               | TODO       |
 
 <!-- Add a row for a fourth member, or delete an unused row. -->

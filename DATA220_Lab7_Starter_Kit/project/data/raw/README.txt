@@ -1,11 +1,27 @@
-Put a sample of every project data source here (Lab 7, task P2).
+# Raw Data Sources
 
-- Keep files exactly as you got them: never edit a file in data/raw/.
-- A sample is enough: a few weeks, or a few thousand rows.
-- Several files with the same columns (one per month, say) go in one folder:
-  data/raw/sales/sales_2026-09.csv, data/raw/sales/sales_2026-10.csv, ...
-- An API source: save one SAMPLE response as a .json file. Open the API address
-  in your browser and save the page (File > Save As), or copy the example
-  response from the API's documentation into a file. Lab 8 calls the API from R.
-- Files over ~50 MB do not belong in Git: keep a sample here, and write in
-  config.R where the full data come from.
+This folder contains original raw data samples collected from the SteamSpy API for the DATA 220 Lab 7 project.
+
+## 1. SteamSpy Game Details
+
+- Folder: `steamspy_games/`
+- Source: SteamSpy API
+- Data: JSON responses containing information about selected Steam games.
+- Collection method: API requests using individual Steam App IDs.
+- Sample files: Original JSON responses for selected games.
+
+## 2. SteamSpy Player Counts
+
+- Folder: `player_counts/`
+- Source: SteamSpy API
+- Data: JSON responses containing player count information for selected Steam games.
+- Collection method: API requests using individual Steam App IDs.
+- Sample files: Original JSON responses for selected games.
+
+## Data Handling
+
+The files in this folder are original samples from the API. They have not been edited or converted into another format.
+
+The full datasets are stored separately. The source URLs and retrieval information are documented in `config.R`.
+
+These raw samples are included to document the original data sources and support reproducible data processing.
