@@ -2,6 +2,7 @@
 # Reads: data/raw/        Writes: data/interim/<source>_raw.csv
 source("config.R")
 source("R/load_functions.R")
+source("R/functions_steam.R")      # read_steam_file(): our reader for Steam answers
 make_folders()
 log_msg("01_extract: start")
 
@@ -28,6 +29,15 @@ save_csv(steamspy_games_raw, "data/interim/steamspy_games_raw.csv")
 
 player_counts_raw <- read_record_folder(SOURCES$player_counts$file)     # folder of Steam JSON
 save_csv(player_counts_raw, "data/interim/player_counts_raw.csv")
+
+# The Most Played chart (one file) and the store details (a folder, one game per file) are
+# nested JSON in other shapes; read_steam_file() in R/functions_steam.R flattens each one.
+most_played_raw <- read_steam_file(SOURCES$most_played$file)            # the frozen top 100
+save_csv(most_played_raw, "data/interim/most_played_raw.csv")
+
+store_files <- list.files(SOURCES$store_details$file, pattern = "\\.json$", full.names = TRUE)
+store_details_raw <- bind_rows(lapply(store_files, read_steam_file))    # one row per game
+save_csv(store_details_raw, "data/interim/store_details_raw.csv")
 
 
 log_msg("01_extract: done")

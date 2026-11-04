@@ -7,12 +7,13 @@
 #   find_text_variants(d, "Item");  show_date_formats(d, "Date");  count_values(d, "Item")
 source("config.R")
 source("R/load_functions.R")
+source("R/functions_steam.R")      # our own readers for Steam answers
 make_folders()
 log_msg("00_inspect: start")
 
 for (name in names(SOURCES)) {
   s <- SOURCES[[name]]
-  if (name %in% c("steamspy_games", "player_counts")) next
+  if (name %in% c("steamspy_games", "player_counts", "most_played", "store_details")) next
   if (!file.exists(s$file)) {
     log_msg(name, ": no file at ", s$file, " -- put a sample in data/raw/ (P2)")
     next
@@ -48,6 +49,29 @@ for (name in c("steamspy_games", "player_counts")) {
     )
   }))
   
+  print(p, right = FALSE)
+  save_csv(p, paste0("output/profile_", name, ".csv"))
+}
+# Inspect the Most Played chart and the store details with read_steam_file() (R/functions_steam.R):
+# both are nested JSON that read_any_file() cannot read. A folder is profiled as one table.
+for (name in c("most_played", "store_details")) {
+  path <- SOURCES[[name]]$file
+  files <- path
+  if (dir.exists(path)) files <- list.files(path, pattern = "\\.json$", full.names = TRUE)
+  d <- bind_rows(lapply(files, read_steam_file))
+
+  p <- bind_rows(lapply(names(d), function(col) {
+    v <- d[[col]]
+    filled <- v[!is.na(v) & str_squish(v) != ""]
+    data.frame(
+      column = col,
+      looks_like = guess_type(filled),
+      missing = length(v) - length(filled),
+      distinct = length(unique(filled)),
+      examples = show_examples(filled)
+    )
+  }))
+
   print(p, right = FALSE)
   save_csv(p, paste0("output/profile_", name, ".csv"))
 }
