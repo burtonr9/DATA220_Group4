@@ -1,5 +1,3 @@
-<!-- PROTOTYPE (November 1). Items marked *(to confirm)* get their numbers from 00_inspect_sources.R before November 4. -->
-
 # What keeps Steam's most-played games busy?
 
 ## 1. Title, team, roles
@@ -8,122 +6,117 @@
 
 | Member | Looks after |
 |---|---|
-| Ryan Burton | sources `most_played` and `store_details`; table `games`; `R/functions_steam.R` and `01_extract.R`; `data_dictionary.md`; Q1 and Q3 |
-| Riwaz Silwal | sources `players` and `prices`, and running the 3-hour poll (`poll_players.R`); tables `player_snapshots` and `price_snapshots`; `03_join.R` and `04_checks.R`; `quality_report.md`; Q2 and Q5 |
-| Mark Buban | sources `achievements` and `reviews`; tables `game_genres` and `achievements`; the database (`05_db.R`); assembling `report.qmd`; Q4 and Q6 |
+| Ryan Burton | the daily SteamSpy pull and table `price_snapshots`; `03_join.R`; `data_dictionary.md`; Q4 and Q5 |
+| Riwaz Silwal | sources `steamspy_games` and `player_counts`, and running the 3-hour poll (`poll_players.R`); table `player_counts`; `04_checks.R`; `quality_report.md`; Q2 and Q6 |
+| Mark Buban | table `games`; `01_extract.R` and `02_clean.R`; the database (`05_db.R`); assembling `report.qmd`; Q1 and Q3 |
 
-Everyone writes the SQL for their own questions, the FOUND / DECISION / CHECK steps in `02_clean.R` for their own tables, and their own slides.
+Everyone writes the SQL for their own questions, the FOUND / DECISION / CHECK steps in `02_clean.R` for their own
+tables, and their own slides.
 
 ## 2. Questions
 
-1. Among Steam's 100 most-played games (list frozen on November 2, 2026, UTC), how do free-to-play and paid games compare in
-   concurrent players, and does the gap differ by genre?
-2. How does concurrent play vary by hour of day (UTC) and day of week from November 2 to November 30, 2026, and
-   which genres swing most between weekdays and weekends?
-3. Is a game's price band (free, under $20, $20–$40, over $40 CAD) related to its share of positive reviews?
-4. Which genres have the hardest achievements (the lowest median global unlock rate), and do games with more
-   achievements have lower unlock rates?
-5. Did games that went on discount during the observation window have more concurrent players while discounted
-   than in the days before?
-6. Do games with more concurrent players have higher or lower median achievement unlock rates than games with
-   fewer players?
+The games are a fixed list of 60 appids taken from Steam's Most Played chart and written in `config.R` before the first
+poll. "Concurrent players" always means Steam's own `player_count`, not SteamSpy's `ccu`.
+
+1. How do free-to-play and paid games compare in concurrent players, and does the gap differ by genre?
+2. How does concurrent play vary by hour of day (UTC) and day of week over the observation window, and which games
+   swing most between weekdays and weekends?
+3. Is a game's price band (free, under $20, $20–$40, over $40 USD) related to its share of positive reviews?
+4. Did games that went on discount during the window have more concurrent players while discounted than in the days
+   before?
+5. How does concurrent play compare with SteamSpy's estimated number of owners: which games keep the largest share
+   of their owners playing?
+6. What share of all concurrent players in the list do the five most-played games (highest median player count over
+   the window) hold at each poll, and how much does that share change by hour, by day of week and across the window?
 
 ## 3. Sources
 
-All six sources are Valve's own public addresses, called from R with httr2. None needs a key or a login, and none
-returns data about individual players: only game-level, aggregated data are requested. Every answer is saved
-untouched in `project/data/raw/` by `scripts/fetch_samples.R` (samples) and `scripts/poll_players.R` (polls).
-
-**Terms (all sources):** Steam Web API Terms of Use (steamcommunity.com/dev/apiterms) for `api.steampowered.com`;
-Steam Subscriber Agreement for `store.steampowered.com`. Neither is an open licence, so we are emailing the instructor
-before November 4 to confirm the sources are acceptable. If redistribution is not allowed, only samples stay in Git and
-`config.R` says how the full data are obtained.
+Both sources are public addresses called from R with httr2. Neither needs a key or a login, and neither returns data
+about individual players: only game-level, aggregated numbers are requested. Every answer is saved untouched in
+`project/data/raw/`.
 
 | # | Source (config name) · owner | What it is | Address | Sample in `data/raw/` |
 |---|---|---|---|---|
-| 1 | Most Played chart (`most_played`) · Ryan Burton | Valve's live top 100 by concurrent players: rank, appid, last week's rank, 24-hour peak. Saved once; that file is the frozen game list. | `api.steampowered.com/ISteamChartsService/GetMostPlayedGames/v1/` | `most_played.json` (7 KB, 100 games, saved 2026-11-02 01:21 UTC) |
-| 2 | Store details (`store_details`) · Ryan Burton | One game's store record: type, name, free or paid, price, genres, release date, developer, Metacritic, recommendations. One request per game. | `store.steampowered.com/api/appdetails?appids=<id>&cc=ca` | `appdetails_730.json` (19 KB) |
-| 3 | Daily prices (`prices`) · Riwaz Silwal | Canadian price and discount for every game, once a day; 50 games per request (`filters=price_overview`). | same address, `&filters=price_overview` | `prices/prices_<date>_<n>.json` |
-| 4 | Current players (`players`) · Riwaz Silwal | Number of people playing each game right now; one request per game, every 3 hours. No history exists, so we build it. | `api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=<id>` | `players/players_<UTC time>.csv` (one row per game; Steam's answer kept as received in `body`) |
-| 5 | Achievement percentages (`achievements`) · Mark Buban | Global unlock percentage of every achievement in a game, aggregated over all players. | `api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2/?gameid=<id>` | `achievements_440.json` (29 KB) |
-| 6 | Review totals (`reviews`) · Mark Buban | Positive and negative review counts and the score label. `num_per_page=0`: no review text, no reviewer IDs. | `store.steampowered.com/appreviews/<id>?json=1&language=all&purchase_type=all&num_per_page=0` | `reviews_730.json` *(to confirm: the first request returned Steam's HTML home page, so the address is being corrected)* |
+| 1 | SteamSpy game details (`steamspy_games`) · Riwaz Silwal | One game per request: appid, name, developer, publisher, positive and negative review counts, estimated owners (a range), price, initial price, discount, genre, languages, tags. Pulled once for the game list, then once a day for prices and discounts (Q4). | `steamspy.com/api.php?request=appdetails&appid=<appid>` | `steamspy_games/spy_<game>.json` (10 games, saved November 3, 2026) |
+| 2 | Current players (`player_counts`) · Riwaz Silwal | Steam's count of people playing one game right now. No history exists, so we build it by polling every 3 hours. | `api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=<appid>` | `player_counts/players_<game>.json` (10 games, one poll, November 3, 2026) |
 
-**Format:** all JSON. The answers are nested, which `read_any_file()` cannot read, so `R/functions_steam.R` (our
-own, explained in the file) flattens each shape to text columns before profiling and cleaning.
+**Format:** both are JSON with one game per file, which `read_any_file()` cannot read (each file is one object, not a
+list of rows, and the player count sits inside `response`). `read_record_folder()` in `R/functions_read.R` (our own,
+explained in the file) reads a folder of answers into one row per file and records which file each row came from.
 
-**Limits and size.** Most addresses return one game per request, so the project is limited to the frozen 100
-games, not the whole catalogue.
+**Terms.** SteamSpy is a third-party site, not Valve; it publishes estimates derived from Steam and states no open
+licence. The player-count address falls under the Steam Web API Terms of Use. Neither is an open licence, so we are
+emailing the instructor to confirm the sources are acceptable; the answer goes in `config.R`. If redistribution is not
+allowed, only samples stay in Git and `config.R` says how the full data are obtained.
 
-- Store addresses allow about 200 requests per 5 minutes per IP; we pause 1.5 s between store requests.
-- Players: 100 requests per poll, 1 s apart, 8 polls a day → about 800 requests a day and about 23,000 rows by
+**Limits and size.** Both addresses return one game per request.
+
+- SteamSpy allows about 1 request per second; 60 games take about a minute. Daily pulls to November 30: about 1,600
+  rows.
+- Players: 60 requests per poll, 1 s apart, 8 polls a day → about 480 requests and 480 rows a day, about 13,000 rows by
   November 30. The poll runs on Riwaz Silwal's computer with Windows Task Scheduler. A missed poll stays missing; nothing
   is filled in.
-- Prices: 2 requests a day → about 30 rows per game. Store details, achievements and reviews: 100 requests each,
-  pulled once at M2.
-- `config.R` sets `USE_SAVED_SAMPLE`, so the pipeline runs from the saved answers when Steam is down. The polls
+- `config.R` sets `USE_SAVED_SAMPLE`, so the pipeline runs from the saved answers when either site is down. Polls
   cannot be re-pulled later, so every poll file is committed.
 
 ## 4. Data audit
 
-Samples saved on November 2, 2026 (UTC) with `scripts/fetch_samples.R`; profiles from `scripts/00_inspect_sources.R`
-(in `output/profile_*.csv`). Counts marked *(to confirm)* are filled in from those profiles before submission.
+Samples saved on November 3, 2026, for 10 games; profiles from `scripts/00_inspect_sources.R` (in `output/`), the
+inspect functions, and the first cleaning run (`02_clean.R`).
 
-**most_played** · 100 rows (one per game)
+**steamspy_games** · 10 rows · 20 fields plus `source_file`
 
-- FOUND: appid and rank but no game name → names come from `store_details`; join on `appid` only, never on names.
-- FOUND: the chart changes daily (`last_week_rank` differs from `rank` for some games; count *(to confirm)*) → the first saved file is the frozen list.
-- FOUND: some of the 100 appids may not be `type = "game"` (count *(to confirm)* in the full store pull) → keep games only; report how many were dropped.
+- FOUND: 6 of 10 games (Aion 2, Final Fantasy Resonance, Overwatch 2, The Finals, Zenless Zone Zero, Call of Duty: Modern
+  Warfare 4) have positive = 0, negative = 0, ccu = 0 and owners "0 .. 20,000", while Steam reports 60,170 people
+  playing Overwatch 2 at the same time → SteamSpy has not tracked these games; the zeros are set to NA and a
+  `has_steamspy_data` flag is kept. Q3 and Q5 use only tracked games and say how many that is.
+- FOUND: price, initialprice and discount are text in US cents ("5999" = $59.99) and missing for 3 games → `to_number()`,
+  divide by 100; missing stays NA ("unknown"), because 0 means free.
+- FOUND: score_rank is empty in all 10 rows; userscore, average_forever, average_2weeks, median_forever and
+  median_2weeks are 0 in all 10 (SteamSpy no longer publishes them) → dropped.
+- FOUND: owners is a text range ("20,000,000 .. 50,000,000") → split into `owners_low` and `owners_high`; Q5 reports
+  both ends, never one number.
+- FOUND: name is empty for 2 games and developer/publisher for 3; Counter-Strike 2 still carries its old name
+  "Counter-Strike: Global Offensive" → names are filled from our file label and recoded; names are for display only,
+  every join uses appid.
+- FOUND: genre holds several values in one cell ("Action, Free To Play") and is empty for 3 games → `is_free` = genre
+  contains "Free To Play" (2 free, 5 paid, 3 unknown); for Q1 a game counts in every genre it lists (a limitation).
+- FOUND: SteamSpy's ccu (1,013,936 for Counter-Strike 2) is a daily peak, not a live count, and differs from Steam's
+  player_count (1,164,756) → not used; concurrent players always come from source 2.
+- FOUND: appid is present and different in all 10 rows → `check_key(games, "appid")` passes.
 
-**store_details** · sample appid 730 · 19 columns after flattening
+**player_counts** · 10 rows (one poll)
 
-- FOUND: the answer is keyed by the appid with a `success` flag → an appid with `success = false` (count *(to confirm)* in the full pull) is listed and excluded.
-- FOUND: prices are whole cents (2999 = $29.99) and absent for free games → divide by 100; price 0 when `is_free` is true, not NA.
-- FOUND: `release_date` is text like "21 Aug, 2012", which `DATE_FORMATS` does not cover → parse with "%d %b, %Y"; list values that fail ("Coming soon", year only).
-- FOUND: several genres in one cell ("1:Action | 37:Free To Play") → split into `game_genres`; a game counts in every genre it lists (a limitation for Q1, Q2 and Q4).
-- FOUND: `metacritic_score` is missing for many games, mostly free ones (count *(to confirm)*) → not used by any question; kept as NA.
-
-**prices** · first day saved November 2, 2026
-
-- FOUND: `data` is empty for free games → price columns NA there; NA means "no price", and free comes from `store_details`.
-- FOUND: `discount_percent` range and number of discounted games *(to confirm)* → a discount day is `discount_percent > 0`.
-
-**players** · first poll November 2, 2026 (100 games)
-
-- FOUND: `result` is not 1 (or `http_status` not 200) for some rows (count *(to confirm)*) → dropped and counted.
-- FOUND: `pulled_at_utc` is our clock, in UTC, and differs by a few seconds within a poll → round to the poll's hour for Q2; hours are reported in UTC.
-- FOUND: polls can be missed (computer asleep or offline) → no filling in; Q2 reports how many polls each hour has.
-- FOUND: `player_count` spans several orders of magnitude (range *(to confirm)*) → medians and a log scale, because a few games dominate.
-
-**achievements** · sample appid 440 · achievement count *(to confirm)*
-
-- FOUND: `achievement_name` is an internal code (display names need a key) → kept as the key; not shown in charts.
-- FOUND: `percent` type (text or number) and range *(to confirm)* → `to_number()`, then `show_out_of_range(0, 100)`.
-- FOUND: some of the 100 games have no achievements (count *(to confirm)*) → excluded from Q4 and Q6 and listed.
-
-**reviews** · sample appid 730
-
-- FOUND: the first request to the reviews address returned Steam's HTML home page, not JSON → `steam_save()` now refuses anything that is not JSON, and the address is being corrected.
-- FOUND: the totals change with `language` and `purchase_type` → fixed at `all` / `all` in `fetch_samples.R`.
-- FOUND: positive share = `total_positive / total_reviews`, range *(to confirm)* → Q3 uses the share, not the score label; games with 0 reviews excluded.
+- FOUND: the answer holds only `player_count` and `result` — no appid and no time → for the sample, the game is matched
+  through the file name; from the first real poll, files are named `players_<appid>_<UTC time>.json`, so both key
+  columns come from the file name.
+- FOUND: the file names differ in capitals from the SteamSpy files (`players_Cyber_punK_2077` vs
+  `spy_Cyber_punk_2077`) → both are lower-cased before matching; all 10 match.
+- FOUND: `result` is 1 in all 10 answers; player_count ranges from 0 (Call of Duty: Modern Warfare 4) to 1,164,756
+  (Counter-Strike 2) → a 0 is checked against the appid before it is kept; medians and a log scale, because a few
+  games dominate.
 
 **Concerns**
 
-- **Terms.** Steam's terms are not an open licence; the instructor's answer goes in `config.R`.
-- **Short window.** Player and price history start on November 2, 2026: four weeks. If no game is discounted in that window, Q5 becomes a comparison of discounted and full-price games on the same days.
-- **Undocumented store addresses** can change shape without notice; the saved answers keep the pipeline running.
-- **Top 100 only.** The list favours long-running free-to-play games; findings do not describe Steam as a whole.
+- **SteamSpy coverage.** 6 of the 10 sample games have no SteamSpy data — mostly recent releases. If that share holds
+  for the 60 games, Q3 and Q5 rest on fewer games. Fallback: Steam's own store and review addresses
+  (`store.steampowered.com/api/appdetails`, `/appreviews`) for price, genre and review counts.
+- **Appids to verify.** SteamSpy returned no name for appids 3393110 (Aion 2) and 4162040 (Zenless Zone Zero), and
+  4435490 (Call of Duty) has 0 players → each appid is checked on its Steam store page before the list is frozen.
+- **Terms.** Neither source has an open licence; the instructor's answer goes in `config.R`.
+- **Short window.** Player history starts with the first poll: about four weeks. If no game is discounted in that
+  window, Q4 becomes a comparison of discounted and full-price games on the same days.
+- **A fixed list.** The 60 games favour long-running free-to-play titles; findings do not describe Steam as a whole.
 
 ## 5. Table plan (preliminary)
 
 | Table | Grain (one row is…) | Key | Built from | Owner |
 |---|---|---|---|---|
-| `games` | one game in the frozen top 100 | `appid` | most_played, store_details, reviews | Ryan Burton |
-| `game_genres` | one game × genre | `appid`, `genre_id` | store_details | Mark Buban |
-| `player_snapshots` | one game × poll | `appid`, `pulled_at_utc` | players | Riwaz Silwal |
-| `price_snapshots` | one game × day | `appid`, `price_date` | prices | Riwaz Silwal |
-| `achievements` | one game × achievement | `appid`, `achievement_name` | achievements | Mark Buban |
+| `games` | one game in the fixed list | `appid` | steamspy_games (first pull) | Mark Buban |
+| `player_counts` | one game × poll | `appid`, `pulled_at_utc` | player_counts | Mark Buban, Riwaz Silwal |
+| `price_snapshots` | one game × day | `appid`, `price_date` | steamspy_games (daily pulls) | Ryan Burton |
 
-**Links:** `game_genres`, `player_snapshots`, `price_snapshots` and `achievements` each link to `games` through `appid`.
+**Links:** `player_counts` and `price_snapshots` each link to `games` through `appid`.
 
-**Possible changes at M2:** a `genres` lookup (one row per `genre_id` with its name) if genre names repeat; an
-`on_discount` column in `player_snapshots` from `price_snapshots`, for Q5.
+**Possible changes at M2:** a `game_genres` table (one row per game × genre) if Q1 needs genres counted separately; an
+`on_discount` column in `player_counts` from `price_snapshots`, for Q4.

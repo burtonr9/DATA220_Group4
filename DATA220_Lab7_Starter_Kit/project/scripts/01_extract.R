@@ -18,7 +18,16 @@ log_msg("01_extract: start")
 #   save_csv(sales_raw, "data/interim/sales_raw.csv")
 # =============================================================================
 
-# your calls here
+# Both sources are folders of JSON answers, one game per file. read_any_file() cannot
+# read them (each file is one object, not a list of rows; player counts sit inside
+# "response"), so read_record_folder() in R/functions_read.R reads every file in the
+# folder into one row and adds source_file, the file each row came from.
+
+steamspy_games_raw <- read_record_folder(SOURCES$steamspy_games$file)   # folder of SteamSpy JSON
+save_csv(steamspy_games_raw, "data/interim/steamspy_games_raw.csv")
+
+player_counts_raw <- read_record_folder(SOURCES$player_counts$file)     # folder of Steam JSON
+save_csv(player_counts_raw, "data/interim/player_counts_raw.csv")
 
 
 log_msg("01_extract: done")

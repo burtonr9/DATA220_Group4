@@ -80,12 +80,17 @@ SOURCES <- list(
 #   items = list(grain = "one row per menu item",    key = "item",            owner = "Sam Example"),
 # =============================================================================
 TABLES <- list(
-  table_1 = list(grain = "TODO", key = "TODO", owner = "TODO"),
-  table_2 = list(grain = "TODO", key = "TODO", owner = "TODO")
+  games         = list(grain = "one row per game (from steamspy_games)",
+                       key = "appid", owner = "Mark Buban"),
+  player_counts = list(grain = "one row per game per poll (from player_counts)",
+                       key = c("appid", "pulled_at_utc"), owner = "Mark Buban, Riwaz Silwal")
 )
+# NOTE: the player-count answers do not contain appid or a time. For now appid comes
+# from the file name (players_<game>.json matched to spy_<game>.json); from Lab 8 on,
+# save each poll as players_<appid>_<UTC time>.json so both key columns come from the file.
 
 # How the tables link: child -> parent, through a shared key column. E.g.
 #   list(child = "sales", parent = "items", key = "item")
 LINKS <- list(
-  list(child = "TODO", parent = "TODO", key = "TODO")
+  list(child = "player_counts", parent = "games", key = "appid")
 )

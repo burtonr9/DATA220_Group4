@@ -5,7 +5,7 @@ here and in `project/config.R` (source and table owners).
 
 **Team number:** 4
 
-**Project title:** TODO
+**Project title:** What keeps Steam's Most Played Games Busy?
 
 **GitHub repository:** https://github.com/burtonr9/DATA220_Lab7_Group4
 
@@ -19,7 +19,7 @@ here and in `project/config.R` (source and table owners).
 |------|------------|--------------------|------------|
 | Ryan Burton | 3143479 | YES            | W1-W4      |
 | Riwaz Silwal | 3172265  | YES               | P1-P3       |
-| TODO | TODO       | TODO               | TODO       |
+| Mark Buban | 3134804       | YES               | Proposal + P4-6       |
 
 <!-- Add a row for a fourth member, or delete an unused row. -->
 

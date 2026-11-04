@@ -1,0 +1,14 @@
+A Warm-up | W1 the weather pipeline runs | 5.0 / 5 | 6 scripts, no errors
+A Warm-up | W2 snow-day decision changed to 5 cm | 5.0 / 5 | SNOW_DAY_CM = 5; snow-day rows = 26
+A Warm-up | W3 q1 five coldest days | 8.0 / 8 | 5 row(s); right answer
+A Warm-up | W3 q2 trips per counter | 8.0 / 8 | 4 row(s); right answer
+A Warm-up | W4 join read: ANSWER line | 4.0 / 4 | right
+B Project | P1 sources: what, format, link, owner | 10.0 / 10 | 2 source(s)
+B Project | P2 a sample file for every source | 10.0 / 10 | 2 of 2 sources have a file in data/raw
+B Project | P3 sources inspected; 2+ FOUND notes | 10.0 / 10 | 2 profile(s); 2 FOUND line(s)
+B Project | P4 table plan: grain, key, owner, link | 10.0 / 10 | 2 table(s), 1 link(s)
+B Project | P5 01_extract.R reads every file | 10.0 / 10 | 2 raw copies for 2 source file(s)
+B Project | P6 first cleaning step, with reasons | 10.0 / 10 | 2 clean file(s); 10 toolkit function(s); 7 DECISION(s)
+C Team | SUBMISSION.md: names, IDs, present | 5.0 / 5 | 3 member(s); 3 present at the lab
+C Team | what each member did | 5.0 / 5 | 3 of 3 filled in
+ESTIMATED SCORE: 100 / 100
