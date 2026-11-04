@@ -7,7 +7,7 @@ here and in `project/config.R` (source and table owners).
 
 **Project title:** What keeps Steam's most-played games busy?
 
-**GitHub repository:** https://github.com/burtonr9/DATA220_Lab7_Group4
+**GitHub repository:** https://github.com/burtonr9/DATA220_Group4
 
 ## Team members
 
