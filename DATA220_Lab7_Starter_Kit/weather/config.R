@@ -13,5 +13,5 @@ STATION_CODES <- c("CLASS-A01" = "EDM-A", "CLASS-B02" = "EDM-B")
 # DECISION: trail use is compared with ONE station (EDM-A), so each day has one weather row.
 ANALYSIS_STATION <- "EDM-A"
 
-# DECISION: a "snow day" has at least 5 cm of new snow (edited from 2).
+# DECISION: a "snow day" has at least 5 cm of new snow (edited from 2). A 2 cm dusting is cleared or melts quickly and barely changes trail conditions; 5 cm of snow makes the trails harder to use.
 SNOW_DAY_CM <- 5
